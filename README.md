@@ -21,6 +21,10 @@ El proyecto incluirá:
 - Migración mediante AWS Application Migration Service.
 - Infraestructura como código con Terraform.
 - Docker.
+- Arquitectura orientada a eventos con Amazon EventBridge y AWS Lambda.
+- Procesamiento asíncrono de pedidos.
+- Optimización automática de imágenes almacenadas en Amazon S3.
+- Manejo de errores mediante Amazon SQS y Dead-Letter Queues.
 - CI/CD con GitHub Actions.
 - Application Load Balancer.
 - Auto Scaling.
@@ -30,6 +34,31 @@ El proyecto incluirá:
 - Seguridad, respaldos y monitoreo.
 - Pruebas de carga y alta disponibilidad.
 - Documentación técnica y ejecutiva.
+
+## Arquitectura objetivo 
+
+Internet
+   |
+Route 53
+   |
+CloudFront
+   |
+AWS WAF
+   |
+Application Load Balancer
+   |
+EC2 Auto Scaling Group
+   |
+API Docker
+   |-------------------- Amazon RDS PostgreSQL
+   |-------------------- Amazon S3
+   |
+Amazon EventBridge
+   |
+AWS Lambda
+   |-------------------- Amazon SNS
+   |-------------------- Amazon SQS DLQ
+   |-------------------- CloudWatch Logs
 
 ## Caso de negocio
 
@@ -46,6 +75,8 @@ La plataforma dispone de:
 - Imágenes de productos.
 - Panel administrativo.
 - Integración con medios de pago.
+
+
 
 ## Estado del proyecto
 
