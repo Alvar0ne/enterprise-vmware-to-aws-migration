@@ -1,6 +1,12 @@
 # Enterprise VMware to AWS Modernization Platform
 
-### End-to-End Enterprise Cloud Migration | ![VMware](https://img.shields.io/badge/VMware-Virtualization-607078?logo=vmware&logoColor=white) •  ![AWS](https://img.shields.io/badge/AWS-Cloud-orange?logo=amazonaws&logoColor=white) • ![Terraform](https://img.shields.io/badge/Terraform-IaC-623CE4?logo=terraform&logoColor=white) • ![Docker](https://img.shields.io/badge/Docker-Containers-2496ED?logo=docker&logoColor=white) • ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql&logoColor=white) • ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-CI/CD-2088FF?logo=githubactions&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-Cloud-orange?logo=amazonaws&logoColor=white)
+![Terraform](https://img.shields.io/badge/Terraform-IaC-623CE4?logo=terraform&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Containers-2496ED?logo=docker&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-Backend-339933?logo=node.js&logoColor=white)
+
+### End-to-End Enterprise Cloud Migration | VMware • AWS • DevOps • Serverless • Data Platform
 
 ---
 
