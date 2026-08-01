@@ -1,6 +1,6 @@
 # Enterprise VMware to AWS Modernization Platform
 
-### End-to-End Enterprise Cloud Migration | VMware • AWS • DevOps • Serverless • Data Platform
+### End-to-End Enterprise Cloud Migration | VMware • AWS ![AWS](https://img.shields.io/badge/AWS-Cloud-orange?logo=amazonaws&logoColor=white) • DevOps • Serverless • Data Platform
 
 ---
 
