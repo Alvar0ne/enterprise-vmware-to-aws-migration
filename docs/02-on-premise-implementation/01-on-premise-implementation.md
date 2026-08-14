@@ -49,6 +49,8 @@ PostgreSQL :5432
 
 La separación de responsabilidades permite simular una arquitectura de múltiples capas y facilita posteriormente la equivalencia de cada componente con servicios AWS.
 
+![Diagrama 1](docs/images/01-diagrama.png)
+
 > **Evidencia:** agregar un diagrama mostrando las cinco máquinas virtuales, sus direcciones IP, funciones y conexiones.
 
 ---
