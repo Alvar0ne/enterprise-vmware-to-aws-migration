@@ -84,7 +84,8 @@ TCP 9100
 
 El acceso a PostgreSQL quedó limitado al servidor de aplicación, mientras que las métricas de Node Exporter quedaron disponibles para el servidor de monitoreo.
 
-> **Evidencia:** agregar una captura de `ip addr` mostrando la configuración de IP estática y una captura de `sudo ufw status` mostrando las reglas relevantes.
+![ip-ufw](../images/02-ip-ufw.png)
+
 
 ---
 
@@ -120,9 +121,11 @@ Next.js :3000
 
 Esto permite empaquetar la aplicación junto con sus dependencias y disponer de un entorno de ejecución reproducible.
 
-> **Evidencia:** agregar una captura de `docker ps` mostrando el contenedor `distrito-api` en estado `Up`.
+![Docker](../images/03-docker.png)
 
-> **Evidencia adicional:** captura parcial de `docker image inspect distrito-miami:latest` mostrando `NODE_VERSION`, `NODE_ENV=production`, usuario `nextjs`, puerto `3000` y arquitectura `amd64`.
+
+
+
 
 ---
 
@@ -171,10 +174,10 @@ También se configuró una cadena `DATABASE_URL` para establecer la comunicació
 
 De esta forma, PostgreSQL pasó a ser la fuente persistente de información utilizada por la aplicación.
 
-> **Evidencia:** agregar una captura de PostgreSQL ejecutando una consulta `SELECT` donde se visualicen productos migrados.
+![Postgress](../images/04-postgres.png)
 
-> [!WARNING]
-> Las capturas y documentación no deben exponer contraseñas, credenciales de `DATABASE_URL`, API Keys, tokens de GitHub ni otros secretos.
+
+
 
 ---
 
@@ -210,9 +213,10 @@ Esto desacopla el punto de entrada utilizado por los clientes del puerto interno
 
 Nginx proporciona además una base para incorporar posteriormente funcionalidades como terminación TLS, routing, headers, compresión, caching y otras políticas de tráfico.
 
-> **Evidencia:** agregar una captura del navegador accediendo a `http://192.168.2.10` y mostrando la aplicación funcionando sin especificar el puerto `3000`.
 
-> **Evidencia adicional:** agregar una captura parcial de la configuración de Nginx mostrando la directiva `proxy_pass` hacia `192.168.2.20:3000`.
+>
+>![Web](../images/05-web.png)
+
 
 ---
 
@@ -253,9 +257,9 @@ Grafana utiliza Prometheus como Data Source y permite construir dashboards para 
 
 Se implementó el dashboard **Node Exporter Full** para centralizar la observabilidad de la infraestructura.
 
-> **Evidencia:** agregar una captura de `Prometheus → Status → Targets` mostrando WEB, API y DB en estado `UP`.
+![Prometheus](../images/06-prometheus.png)
 
-> **Evidencia principal:** agregar una captura de Grafana mostrando el dashboard Node Exporter Full con métricas reales de uno de los servidores.
+![Grafana](../images/06-grafana.png)
 
 ---
 
@@ -279,7 +283,9 @@ Se comprobó exitosamente la conectividad SSH desde el Bastion Host hacia los se
 
 En este laboratorio, el Bastion Host también fue utilizado para alojar un **self-hosted GitHub Actions Runner**, permitiendo que GitHub Actions ejecute workflows dentro de la red privada VMware sin exponer directamente los servidores internos.
 
-> **Evidencia:** agregar una captura desde `dm-bastion-01` mostrando una conexión SSH hacia `dm-api-01` y la ejecución de `hostname`.
+
+
+ ![Bastion](../images/07-bastion.png)
 
 ---
 
@@ -354,7 +360,9 @@ DM-API-01 permanece sin cambios
 
 Esto evita que versiones que no superen la validación lleguen a la etapa de deployment.
 
-> **Evidencia:** agregar una captura de GitHub Actions mostrando en verde el checkout del repositorio, preparación de Node.js 22, `npm ci` y compilación de la aplicación.
+![CI](../images/08-ci.png)
+
+
 
 ---
 
@@ -403,7 +411,7 @@ git push origin main
 
 El resto del proceso de validación y deployment queda automatizado.
 
-> **Evidencia principal:** agregar una captura de GitHub Actions mostrando ambos jobs completados correctamente:
+![CD](../images/09-CD.png)
 
 ```text
 CI - Build and Validate    ✅
@@ -443,7 +451,7 @@ Listening for Jobs
 
 Esto permite que el runner quede disponible automáticamente después de iniciar `DM-BASTION-01`, sin necesidad de ejecutar manualmente el proceso.
 
-> **Evidencia:** agregar una captura de `systemctl` mostrando el servicio GitHub Actions Runner como `active (running)`, junto con los mensajes `Connected to GitHub` y `Listening for Jobs`.
+![Runner](../images/10-runner.png)
 
 ---
 
