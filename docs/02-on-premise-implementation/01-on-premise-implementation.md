@@ -360,7 +360,7 @@ DM-API-01 permanece sin cambios
 
 Esto evita que versiones que no superen la validación lleguen a la etapa de deployment.
 
-![CI](../images/08-ci.png)
+![CI](../images/08-CI.png)
 
 
 
