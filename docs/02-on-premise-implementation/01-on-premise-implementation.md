@@ -51,7 +51,6 @@ La separación de responsabilidades permite simular una arquitectura de múltipl
 
 ![Diagrama 1](../images/01-diagrama.png)
 
-> **Evidencia:** agregar un diagrama mostrando las cinco máquinas virtuales, sus direcciones IP, funciones y conexiones.
 
 ---
 
