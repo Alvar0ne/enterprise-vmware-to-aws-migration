@@ -6,281 +6,188 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-Backend-339933?logo=node.js&logoColor=white)
 
-### End-to-End Enterprise Cloud Migration | VMware • AWS • DevOps • Serverless • Data Platform
+### Migración y modernización empresarial End-to-End | VMware • AWS • DevOps • Serverless • Data Platform
 
 ---
 
-## 📖 Project Overview
+## 📖 Descripción del proyecto
 
-This project documents the complete migration and modernization of an enterprise e-commerce platform using **Distrito Miami** as the business case.
+Este proyecto documenta la migración y modernización de una plataforma de comercio electrónico empresarial, utilizando **Distrito Miami** como caso de negocio.
 
-The objective is to design, implement and document an end-to-end migration strategy from an on-premises VMware infrastructure to a modern AWS architecture, following enterprise cloud best practices.
+El objetivo es diseñar, implementar y documentar una estrategia completa para evolucionar desde una infraestructura basada en VMware hacia una arquitectura moderna en AWS, aplicando buenas prácticas de arquitectura cloud, seguridad, alta disponibilidad, automatización e Infrastructure as Code.
 
-The project covers the complete lifecycle of an enterprise cloud migration, including infrastructure assessment, migration, modernization, automation, observability, DevOps, serverless computing and analytics.
+La estrategia principal corresponde a una **replatformización y modernización**, en lugar de realizar únicamente un rehost 1:1 de las máquinas virtuales existentes.
 
-> **Note:** This repository uses a sanitized version of a real-world application. No production credentials, customer information or confidential business data are included.
-
----
-
-# 🎯 Project Objectives
-
-This project demonstrates practical experience in:
-
-- Infrastructure Assessment
-- VMware Administration
-- AWS Cloud Architecture
-- Enterprise Networking
-- Infrastructure Migration
-- Cloud Modernization
-- Infrastructure as Code (Terraform)
-- Docker
-- CI/CD
-- High Availability
-- Auto Scaling
-- Observability
-- Cloud Security
-- Event-Driven Architecture
-- Data Engineering
-- Business Intelligence
+> **Nota:** Este repositorio utiliza una versión sanitizada de una aplicación real. No contiene credenciales de producción, información de clientes ni datos comerciales confidenciales.
 
 ---
 
-# 🚀 Project Roadmap
+# 🎯 Objetivos del proyecto
 
-| Phase | Status |
-|--------|--------|
-| Phase 1 - Infrastructure Assessment | 🟡 In Progress |
-| Phase 2 - VMware On-Premise Lab | ⏳ Pending |
-| Phase 3 - AWS Migration (MGN) | ⏳ Pending |
-| Phase 4 - Cloud Modernization | ⏳ Pending |
-| Phase 5 - DevOps & Infrastructure as Code | ⏳ Pending |
-| Phase 6 - Event-Driven Architecture | ⏳ Pending |
-| Phase 7 - Data Platform | ⏳ Pending |
-| Phase 8 - Business Intelligence | ⏳ Pending |
-| Phase 9 - Automated Business Insights | ⏳ Pending |
-| Phase 10 - AI Integration (Optional) | ⏳ Pending |
+El proyecto busca demostrar experiencia práctica en:
+
+- Administración de infraestructura VMware
+- Arquitectura AWS
+- Networking empresarial
+- Migración y modernización cloud
+- Infrastructure as Code con Terraform
+- Docker y contenedores
+- CI/CD con GitHub Actions
+- Alta disponibilidad y Auto Scaling
+- Seguridad cloud
+- Observabilidad y monitoreo
+- Arquitecturas orientadas a eventos
+- Data Engineering y Business Intelligence
 
 ---
 
-# 🏗 Enterprise Architecture
+# 🏗 Arquitectura
 
-## On-Premise Infrastructure
+## Infraestructura de origen — VMware
 
-- VMware Workstation
-- Ubuntu Server
-- Docker
-- Node.js
+El entorno de origen está compuesto por máquinas virtuales Ubuntu que representan las principales capas de una plataforma empresarial:
+
+- Frontend / Reverse Proxy
+- Aplicación Next.js + Docker
 - PostgreSQL
+- Prometheus + Grafana
+- Bastion + GitHub Actions Runner
 
-↓
+## Arquitectura objetivo — AWS
 
-## AWS Cloud Platform
+La plataforma se está modernizando utilizando servicios administrados y capacidades nativas de AWS.
 
-### Networking
+Principales componentes:
 
-- Amazon VPC
-- Public & Private Subnets
-- Internet Gateway
-- NAT Gateway
-- Route Tables
+- Amazon VPC con arquitectura Multi-AZ
+- Subnets públicas y privadas
+- Internet Gateway y NAT Gateway
 - Security Groups
-- Network ACLs
-
-### Compute
-
 - Amazon EC2
 - Launch Templates
 - Auto Scaling Groups
 - Application Load Balancer
-
-### Database
-
 - Amazon RDS PostgreSQL
-- Multi-AZ Deployment
-- Automated Backups
-- Point-in-Time Recovery
-- Snapshots
-
-### Storage
-
 - Amazon S3
-- Versioning
-- Lifecycle Policies
-
-### Content Delivery
-
-- Amazon CloudFront
-
-### Security
-
-- AWS IAM
-- IAM Roles
-- IAM Policies
-- AWS WAF
-- AWS KMS
-- AWS Secrets Manager
-- AWS Certificate Manager (ACM)
-
-### Monitoring
-
 - Amazon CloudWatch
-- Amazon SNS
-- AWS CloudTrail
-- AWS Config
-
-### Backup
-
-- AWS Backup
+- IAM
+- Terraform
+- GitHub Actions
 
 ---
 
-# ⚡ Serverless Architecture
+# 🚀 Estado del proyecto
 
-The project includes an Event-Driven Architecture based on **Amazon EventBridge** and **AWS Lambda**.
-
-Implemented serverless workloads include:
-
-- Order Processing
-- Image Optimization
-- Data Lake Ingestion
-- Automated Executive Reports
+| Etapa | Estado |
+|---|---|
+| Laboratorio VMware | ✅ Completado |
+| Aplicación + PostgreSQL en VMware | ✅ Completado |
+| Dockerización de la aplicación | ✅ Completado |
+| Monitoreo Prometheus / Grafana | ✅ Completado |
+| CI/CD inicial con GitHub Actions | ✅ Completado |
+| Networking AWS con Terraform | ✅ Completado |
+| Security Groups | ✅ Completado |
+| Launch Template + Auto Scaling | ✅ Completado |
+| Application Load Balancer | ✅ Completado |
+| Despliegue automático de la aplicación en EC2 | 🟡 En progreso |
+| Amazon RDS PostgreSQL | ⏳ Pendiente |
+| Observabilidad AWS | ⏳ Pendiente |
+| Serverless / Event-Driven | ⏳ Pendiente |
+| Data Platform / Analytics | ⏳ Pendiente |
 
 ---
 
-# 📊 Data Platform
+# 🔄 Estrategia de migración
 
-The project also includes a complete enterprise analytics platform.
+La arquitectura no replica directamente las máquinas virtuales VMware en AWS.
 
-### Amazon S3 Data Lake
+Se utiliza una estrategia de **replatform / modernization**, reemplazando componentes tradicionales por servicios y patrones cloud-native cuando corresponde.
 
+Para la base de datos PostgreSQL se contempla una estrategia empresarial mediante **AWS Database Migration Service (DMS)** utilizando Full Load + Change Data Capture (CDC), permitiendo realizar posteriormente un cutover controlado hacia Amazon RDS PostgreSQL.
+
+AWS Application Migration Service (MGN) queda considerado como alternativa para workloads que requieran una estrategia de **rehost / lift-and-shift**.
+
+---
+
+# ⚙️ Infrastructure as Code
+
+La infraestructura AWS se construye utilizando **Terraform**, permitiendo que la arquitectura sea:
+
+- Reproducible
+- Versionable
+- Auditable
+- Automatizable
+- Consistente entre ambientes
+
+El código Terraform se encuentra dentro del directorio:
+
+```text
+terraform/
 ```
-raw/
-processed/
-curated/
-reports/
-```
-
-### AWS Glue
-
-- Crawlers
-- ETL Jobs
-- Data Catalog
-
-### Amazon Athena
-
-SQL queries directly over the Data Lake.
-
-### Power BI
-
-Executive dashboards built on Athena datasets.
 
 ---
 
 # 🔄 DevOps
 
-Infrastructure deployment is fully automated using:
+El proyecto incorpora prácticas DevOps utilizando:
 
-- Terraform
 - Git
 - GitHub
 - GitHub Actions
+- Docker
+- Terraform
 
-CI/CD Pipeline includes:
-
-- Terraform Validation
-- Terraform Plan
-- Terraform Apply
-- Docker Build
-- Container Deployment
+El objetivo final es automatizar tanto la infraestructura como el ciclo de construcción y despliegue de la aplicación.
 
 ---
 
-# ☁ AWS Services
+# ⚡ Próximas etapas
 
-## Compute
-
-- Amazon EC2
-- Auto Scaling
-- Application Load Balancer
-
-## Storage
-
-- Amazon S3
-
-## Database
+La evolución de la plataforma contempla:
 
 - Amazon RDS PostgreSQL
-
-## Networking
-
-- Amazon VPC
+- AWS DMS
+- Amazon ECR
+- CloudWatch y SNS
+- ACM / HTTPS
 - Route 53
-- CloudFront
-
-## Security
-
-- IAM
-- WAF
-- KMS
-- Secrets Manager
-- ACM
-
-## Monitoring
-
-- CloudWatch
-- CloudTrail
-- AWS Config
-- SNS
-
-## Serverless
-
+- Políticas de Auto Scaling
 - AWS Lambda
 - Amazon EventBridge
-- Amazon SQS
-
-## Migration
-
-- AWS Application Migration Service (MGN)
-
-## Data Engineering
-
-- Amazon S3
+- Amazon SQS + DLQ
+- Data Lake en Amazon S3
 - AWS Glue
-- Glue Data Catalog
 - Amazon Athena
-
-## Business Intelligence
-
 - Power BI
 
-## Artificial Intelligence (Future Enhancement)
+---
 
-- Amazon Bedrock
+# 📚 Documentación
+
+Los detalles técnicos, decisiones de arquitectura, configuraciones, procedimientos, evidencias y diagramas se mantienen separados del README principal dentro de la documentación del proyecto.
+
+El repositorio contempla documentación para:
+
+- Arquitectura
+- Infraestructura VMware
+- Terraform
+- Networking
+- Seguridad
+- Estrategia de migración
+- DevOps y CI/CD
+- Base de datos
+- Observabilidad
+- Serverless
+- Data Platform
+- Diagramas
+- Decisiones de arquitectura
 
 ---
 
-# 📚 Documentation
+# 📁 Estructura del repositorio
 
-This repository includes professional technical documentation covering the entire project lifecycle.
-
-- Infrastructure Assessment
-- Business Requirements
-- High Level Design (HLD)
-- Low Level Design (LLD)
-- Architecture Decision Records (ADR)
-- Runbooks
-- Infrastructure Diagrams
-- Migration Strategy
-- Security Architecture
-- Disaster Recovery
-- Lessons Learned
-
----
-
-# 📁 Repository Structure
-
-```
-enterprise-vmware-to-aws-modernization-platform
+```text
+enterprise-vmware-to-aws-migration/
 │
 ├── docs/
 ├── terraform/
@@ -295,30 +202,16 @@ enterprise-vmware-to-aws-modernization-platform
 
 ---
 
-# 🎯 Expected Outcome
+# 🎯 Resultado esperado
 
-After completing this project, the resulting platform will demonstrate practical experience in:
-
-- Enterprise Cloud Architecture
-- VMware Migration
-- AWS Infrastructure
-- DevOps
-- Infrastructure as Code
-- Docker
-- CI/CD
-- Event-Driven Systems
-- Data Engineering
-- Business Intelligence
-- Observability
-- Cloud Security
-- Automation
+Al finalizar, el proyecto demostrará de forma práctica un proceso completo de migración y modernización empresarial desde VMware hacia AWS, incluyendo infraestructura, automatización, seguridad, alta disponibilidad, DevOps, observabilidad y servicios de datos.
 
 ---
 
-# 👨‍💻 Author
+# 👨‍💻 Autor
 
 **Álvaro Ponce**
 
-Computer Engineer
+Ingeniero Civil en Computación
 
-Enterprise Cloud | AWS | Infrastructure | DevOps | Data Engineering
+**Cloud | AWS | Infraestructura | DevOps | Data Engineering**
