@@ -187,7 +187,7 @@ La modernización definida para el proyecto contempla el siguiente mapeo:
 | Imágenes y objetos estáticos | Amazon S3 | Replatform |
 | Ejecución de contenedores | EC2 + Auto Scaling Group | Replatform |
 
-### Arquitectura objetivo simplificada
+
 
 ![Mapa2](../images/12-mapa-arqui.png)
 
@@ -203,30 +203,7 @@ Para centralizar las imágenes de contenedores se utiliza **Amazon Elastic Conta
 
 El flujo definido para la aplicación es:
 
-```text
-GitHub
-   │
-   ▼
-Código fuente
-   │
-   ▼
-Docker Build
-   │
-   ▼
-Imagen Docker
-   │
-   ▼
-Amazon ECR
-   │
-   ▼
-EC2 / Auto Scaling Group
-   │
-   ▼
-Docker Container
-   │
-   ▼
-Aplicación Next.js :3000
-```
+![Mapa3](../images/12-mapa3.png)
 
 Amazon ECR funciona como el registro privado de imágenes Docker de la plataforma.
 
