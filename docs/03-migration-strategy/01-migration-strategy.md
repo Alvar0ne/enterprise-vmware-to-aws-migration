@@ -225,33 +225,9 @@ Este enfoque permite:
 
 El proceso objetivo de una nueva instancia es:
 
-```text
-Auto Scaling Group
-        │
-        ▼
-Launch Template
-        │
-        ▼
-Nueva EC2
-        │
-        ▼
-Docker
-        │
-        ▼
-Amazon ECR
-        │
-        ▼
-docker pull
-        │
-        ▼
-Imagen de la aplicación
-        │
-        ▼
-docker run
-        │
-        ▼
-Next.js :3000
-```
+<p align="center">
+  <img src="../images/15-mapa5.png" alt="Mapa3" width="700">
+</p>
 
 Las instancias EC2 son creadas mediante un **Launch Template** administrado por Terraform.
 
@@ -271,15 +247,9 @@ Mientras que el código de la aplicación puede reconstruirse desde GitHub y la 
 
 La arquitectura objetivo utiliza:
 
-```text
-PostgreSQL On-Premises
-          │
-          ▼
-        AWS DMS
-          │
-          ▼
-Amazon RDS for PostgreSQL
-```
+<p align="center">
+  <img src="../images/14-mapa4.png" alt="Mapa3" width="700">
+</p>
 
 Para un escenario empresarial productivo se contempla utilizar:
 
