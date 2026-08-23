@@ -159,16 +159,8 @@ Por lo tanto, no existe una necesidad técnica de conservar íntegramente el sis
 
 En lugar de copiar la máquina virtual completa, el servicio puede reconstruirse automáticamente sobre nuevas instancias AWS.
 
-```text
-GitHub
-   +
-Docker
-   +
-Terraform
-   │
-   ▼
-Infraestructura AWS reproducible
-```
+
+![Mapagit](../images/11-Mapa-git-terra-docker.png)
 
 Esto permite evolucionar desde servidores configurados manualmente hacia infraestructura reproducible y reemplazable.
 
