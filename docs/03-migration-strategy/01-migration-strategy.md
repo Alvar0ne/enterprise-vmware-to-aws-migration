@@ -203,7 +203,7 @@ Para centralizar las imágenes de contenedores se utiliza **Amazon Elastic Conta
 
 El flujo definido para la aplicación es:
 
-![Mapa3](../images/12-mapa3.png)
+![Mapa3](../images/13-mapa3.png)
 
 Amazon ECR funciona como el registro privado de imágenes Docker de la plataforma.
 
