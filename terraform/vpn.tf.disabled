@@ -1,0 +1,47 @@
+resource "aws_vpn_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "enterprise-vmware-aws-vgw"
+  }
+}
+
+resource "aws_customer_gateway" "onprem" {
+  bgp_asn    = 65000
+  ip_address = var.customer_gateway_public_ip
+  type       = "ipsec.1"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+    Name        = "enterprise-vmware-customer-gateway"
+    Environment = "lab"
+    Project     = "enterprise-vmware-to-aws-migration"
+  }
+}
+
+resource "aws_vpn_connection" "onprem" {
+  customer_gateway_id = aws_customer_gateway.onprem.id
+  vpn_gateway_id      = aws_vpn_gateway.main.id
+  type                = "ipsec.1"
+
+  static_routes_only = true
+
+  tags = {
+    Name        = "enterprise-vmware-aws-vpn"
+    Environment = "lab"
+    Project     = "enterprise-vmware-to-aws-migration"
+  }
+}
+
+resource "aws_vpn_connection_route" "onprem" {
+  destination_cidr_block = "192.168.2.0/24"
+  vpn_connection_id      = aws_vpn_connection.onprem.id
+}
+
+resource "aws_vpn_gateway_route_propagation" "private" {
+  vpn_gateway_id = aws_vpn_gateway.main.id
+  route_table_id = aws_route_table.private.id
+}

@@ -1,0 +1,384 @@
+resource "aws_iam_role" "dms_vpc_role" {
+  name = "dms-vpc-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Principal = {
+          Service = "dms.amazonaws.com"
+        }
+
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = {
+    Name        = "dms-vpc-role"
+    Environment = "lab"
+    Project     = "enterprise-vmware-to-aws-migration"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "dms_vpc_role" {
+  role       = aws_iam_role.dms_vpc_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonDMSVPCManagementRole"
+}
+
+
+
+
+resource "aws_dms_replication_subnet_group" "main" {
+  replication_subnet_group_id          = "enterprise-vmware-dms-subnet-group"
+  replication_subnet_group_description = "Subnets privadas para AWS DMS"
+
+  subnet_ids = [
+    aws_subnet.private_a.id,
+    aws_subnet.private_b.id
+  ]
+
+  depends_on = [
+    aws_iam_role_policy_attachment.dms_vpc_role
+  ]
+
+  tags = {
+    Name        = "enterprise-vmware-dms-subnet-group"
+    Environment = "lab"
+    Project     = "enterprise-vmware-to-aws-migration"
+  }
+}
+
+resource "aws_security_group" "dms" {
+  name        = "dms-sg"
+  description = "Security Group para AWS DMS"
+  vpc_id      = aws_vpc.main.id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+
+
+  tags = {
+    Name        = "DMS-SG"
+    Environment = "lab"
+    Project     = "enterprise-vmware-to-aws-migration"
+  }
+}
+
+resource "aws_dms_replication_instance" "main" {
+  replication_instance_id    = "enterprise-vmware-dms"
+  replication_instance_class = "dms.t3.medium"
+
+  engine_version = "3.6.1"
+
+  allocated_storage = 20
+
+  replication_subnet_group_id = aws_dms_replication_subnet_group.main.id
+
+  vpc_security_group_ids = [
+    aws_security_group.dms.id
+  ]
+
+  publicly_accessible = false
+
+  multi_az = false
+
+  tags = {
+    Name        = "enterprise-vmware-dms"
+    Environment = "lab"
+    Project     = "enterprise-vmware-to-aws-migration"
+  }
+}
+
+resource "aws_dms_endpoint" "source_postgres" {
+  endpoint_id   = "vmware-postgres-source"
+  endpoint_type = "source"
+  engine_name   = "postgres"
+
+  server_name   = "192.168.2.30"
+  port          = 5432
+  database_name = "distrito_miami"
+
+  username = "dms_user"
+  password = var.dms_source_password
+
+  ssl_mode = "none"
+
+  tags = {
+    Name        = "VMware-PostgreSQL-Source"
+    Environment = "lab"
+    Project     = "enterprise-vmware-to-aws-migration"
+  }
+}
+
+resource "aws_iam_role" "dms_secrets_role" {
+  name = "dms-secrets-manager-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Principal = {
+          Service = "dms.us-east-1.amazonaws.com"
+        }
+
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = {
+    Name        = "dms-secrets-manager-role"
+    Environment = "lab"
+    Project     = "enterprise-vmware-to-aws-migration"
+  }
+}
+
+
+resource "aws_iam_role_policy" "dms_secrets_policy" {
+  name = "dms-read-rds-secret"
+  role = aws_iam_role.dms_secrets_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ]
+
+        Resource = aws_secretsmanager_secret.dms_rds_target.arn
+      }
+    ]
+  })
+}
+
+
+resource "aws_dms_endpoint" "target_postgres" {
+  endpoint_id   = "rds-postgres-target"
+  endpoint_type = "target"
+  engine_name   = "postgres"
+
+  database_name = aws_db_instance.postgres.db_name
+
+  secrets_manager_arn = aws_secretsmanager_secret.dms_rds_target.arn
+
+  secrets_manager_access_role_arn = aws_iam_role.dms_secrets_role.arn
+
+  ssl_mode = "require"
+
+  depends_on = [
+    aws_iam_role_policy.dms_secrets_policy
+  ]
+
+  tags = {
+    Name        = "RDS-PostgreSQL-Target"
+    Environment = "lab"
+    Project     = "enterprise-vmware-to-aws-migration"
+  }
+
+  extra_connection_attributes = "loadUsingCSV=false"
+}
+
+resource "aws_secretsmanager_secret" "dms_rds_target" {
+  name        = "enterprise-vmware-dms-rds-target"
+  description = "Credenciales de conexion de AWS DMS hacia RDS PostgreSQL"
+
+  tags = {
+    Name        = "enterprise-vmware-dms-rds-target"
+    Environment = "lab"
+    Project     = "enterprise-vmware-to-aws-migration"
+  }
+}
+
+
+
+resource "aws_dms_replication_task" "postgres_migration" {
+  replication_task_id = "vmware-to-rds-postgres"
+  migration_type      = "full-load-and-cdc"
+
+  replication_instance_arn = aws_dms_replication_instance.main.replication_instance_arn
+
+  source_endpoint_arn = aws_dms_endpoint.source_postgres.endpoint_arn
+  target_endpoint_arn = aws_dms_endpoint.target_postgres.endpoint_arn
+
+  table_mappings = jsonencode({
+    rules = [
+      {
+        "rule-type" = "selection"
+        "rule-id"   = "1"
+        "rule-name" = "include-public-schema"
+
+        "object-locator" = {
+          "schema-name" = "public"
+          "table-name"  = "%"
+        }
+
+        "rule-action" = "include"
+      }
+    ]
+  })
+
+  replication_task_settings = jsonencode({
+    FullLoadSettings = {
+      TargetTablePrepMode = "DO_NOTHING"
+      MaxFullLoadSubTasks = 1
+    }
+
+    Logging = {
+      EnableLogging = true
+
+      LogComponents = [
+        {
+          Id       = "SOURCE_UNLOAD"
+          Severity = "LOGGER_SEVERITY_DEFAULT"
+        },
+        {
+          Id       = "TARGET_LOAD"
+          Severity = "LOGGER_SEVERITY_INFO"
+        },
+        {
+          Id       = "TARGET_APPLY"
+          Severity = "LOGGER_SEVERITY_DEFAULT"
+        },
+        {
+          Id       = "TABLES_MANAGER"
+          Severity = "LOGGER_SEVERITY_DEFAULT"
+        },
+        {
+          Id       = "TASK_MANAGER"
+          Severity = "LOGGER_SEVERITY_DEFAULT"
+        }
+      ]
+    }
+  })
+
+  depends_on = [
+    aws_iam_role_policy_attachment.dms_cloudwatch_logs
+  ]
+
+  tags = {
+    Name        = "VMware-to-RDS-PostgreSQL"
+    Environment = "lab"
+    Project     = "enterprise-vmware-to-aws-migration"
+  }
+}
+
+
+
+
+
+resource "aws_iam_role" "dms_cloudwatch_logs_role" {
+  name = "dms-cloudwatch-logs-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Effect = "Allow"
+
+        Principal = {
+          Service = "dms.amazonaws.com"
+        }
+
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = {
+    Name        = "DMS-CloudWatch-Logs-Role"
+    Environment = "lab"
+    Project     = "enterprise-vmware-to-aws-migration"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "dms_cloudwatch_logs" {
+  role       = aws_iam_role.dms_cloudwatch_logs_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonDMSCloudWatchLogsRole"
+}
+
+
+
+resource "aws_dms_replication_task" "postgres_test_full_load" {
+  replication_task_id = "vmware-to-rds-test-categories"
+  migration_type      = "full-load"
+
+  replication_instance_arn = aws_dms_replication_instance.main.replication_instance_arn
+
+  source_endpoint_arn = aws_dms_endpoint.source_postgres.endpoint_arn
+  target_endpoint_arn = aws_dms_endpoint.target_postgres.endpoint_arn
+
+  table_mappings = jsonencode({
+    rules = [
+      {
+        "rule-type" = "selection"
+        "rule-id"   = "1"
+        "rule-name" = "only-categories"
+
+        "object-locator" = {
+          "schema-name" = "public"
+          "table-name"  = "categories"
+        }
+
+        "rule-action" = "include"
+      }
+    ]
+  })
+
+  replication_task_settings = jsonencode({
+    FullLoadSettings = {
+      TargetTablePrepMode = "DO_NOTHING"
+      MaxFullLoadSubTasks = 1
+    }
+
+    Logging = {
+      EnableLogging = true
+
+      LogComponents = [
+        {
+          Id       = "SOURCE_UNLOAD"
+          Severity = "LOGGER_SEVERITY_DETAILED_DEBUG"
+        },
+        {
+          Id       = "TARGET_LOAD"
+          Severity = "LOGGER_SEVERITY_DETAILED_DEBUG"
+        },
+        {
+          Id       = "TASK_MANAGER"
+          Severity = "LOGGER_SEVERITY_DEBUG"
+        },
+        {
+          Id       = "TABLES_MANAGER"
+          Severity = "LOGGER_SEVERITY_DEBUG"
+        }
+      ]
+    }
+  })
+
+  depends_on = [
+    aws_iam_role_policy_attachment.dms_cloudwatch_logs
+  ]
+
+  tags = {
+    Name        = "DMS-Diagnostic-Categories"
+    Environment = "lab"
+    Project     = "enterprise-vmware-to-aws-migration"
+  }
+}

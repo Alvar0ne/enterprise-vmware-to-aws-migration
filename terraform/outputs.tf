@@ -63,3 +63,24 @@ output "target_group_arn" {
   description = "ARN del Target Group de la aplicacion"
   value       = aws_lb_target_group.app.arn
 }
+
+output "ecr_repository_url" {
+  description = "URL del repositorio ECR de la aplicación"
+  value       = aws_ecr_repository.app.repository_url
+}
+
+
+output "rds_endpoint" {
+  description = "Endpoint de Amazon RDS PostgreSQL"
+  value       = aws_db_instance.postgres.address
+}
+
+output "rds_port" {
+  description = "Puerto de Amazon RDS PostgreSQL"
+  value       = aws_db_instance.postgres.port
+}
+
+output "rds_master_secret_arn" {
+  description = "ARN del secreto con las credenciales maestras de RDS"
+  value       = aws_db_instance.postgres.master_user_secret[0].secret_arn
+}

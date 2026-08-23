@@ -22,3 +22,16 @@ variable "app_volume_size" {
   type        = number
   default     = 20
 }
+
+
+/*variable "customer_gateway_public_ip" {
+  description = "IP publica del router/NAT del laboratorio VMware"
+  type        = string
+}
+*/
+
+variable "dms_source_password" {
+  description = "Password del usuario DMS de PostgreSQL on-premises"
+  type        = string
+  sensitive   = true
+}

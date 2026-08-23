@@ -52,6 +52,8 @@ resource "aws_security_group" "app" {
     security_groups = [aws_security_group.alb.id]
   }
 
+
+
   egress {
     description = "Salida permitida"
     from_port   = 0
@@ -65,24 +67,33 @@ resource "aws_security_group" "app" {
   }
 }
 
-#SECURITY GROUP RDS, PERMITE EL TRAFICO DESDE el SG DE LA APP PUERTO DE POSTGRESS
 
+
+# SECURITY GROUP RDS ( PERMITE SOLO EL TRAFICO POR PUERTO DE DB DESDE APP CON SECURITY GROUP AUTORIZADO)
 resource "aws_security_group" "rds" {
-  name        = "${var.project_name}-rds-sg"
-  description = "Security Group para PostgreSQL RDS"
+  name        = "rds-sg"
+  description = "Permite PostgreSQL solo desde la capa de aplicacion"
   vpc_id      = aws_vpc.main.id
 
   ingress {
-    description = "PostgreSQL desde servidores de aplicacion"
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    #PERMITE TRAFICO SOLO DESDE ESE SG PUERTO 5432
+    description     = "PostgreSQL desde APP-SG"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
     security_groups = [aws_security_group.app.id]
   }
 
+  /*ingress {
+    description = "PostgreSQL desde VMware via Site-to-Site VPN"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["192.168.2.0/24"]
+  }
+*/
+
+
   egress {
-    description = "Salida permitida"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -90,6 +101,6 @@ resource "aws_security_group" "rds" {
   }
 
   tags = {
-    Name = "${var.project_name}-rds-sg"
+    Name = "RDS-SG"
   }
 }
