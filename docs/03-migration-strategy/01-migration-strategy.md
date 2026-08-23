@@ -205,6 +205,12 @@ El flujo definido para la aplicación es:
 
 ![Mapa3](../images/13-mapa3.png)
 
+<img src="../images/13-mapa3.png" alt="Mapa3" width="500">
+
+<p align="center">
+  <img src="../images/13-mapa3.png" alt="Mapa3" width="500">
+</p>
+
 Amazon ECR funciona como el registro privado de imágenes Docker de la plataforma.
 
 En lugar de depender de que cada nueva instancia compile nuevamente el código fuente, las instancias pueden obtener una imagen Docker previamente construida y almacenada en ECR.
