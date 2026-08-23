@@ -13,6 +13,7 @@ Los principales objetivos son:
 - Mejorar la disponibilidad mediante una arquitectura Multi-AZ.
 - Separar las capas pública, aplicación y base de datos.
 - Incorporar escalabilidad automática.
+- Centralizar las imágenes Docker mediante Amazon ECR.
 - Migrar PostgreSQL hacia un servicio administrado.
 - Minimizar la interrupción del servicio durante una eventual migración productiva.
 - Establecer una arquitectura preparada para automatización, observabilidad y CI/CD.
@@ -129,6 +130,7 @@ Este enfoque permite utilizar servicios como:
 - Application Load Balancer.
 - Amazon EC2.
 - Auto Scaling.
+- Amazon ECR.
 - Amazon RDS.
 - Amazon S3.
 - Amazon CloudWatch.
@@ -150,6 +152,7 @@ La aplicación dispone de:
 - Código fuente versionado en GitHub.
 - Dockerfile.
 - Dependencias declaradas.
+- Imagen Docker almacenada en Amazon ECR.
 - Configuración reproducible.
 - Pipeline CI/CD.
 - Base de datos PostgreSQL claramente identificada.
@@ -159,8 +162,17 @@ Por lo tanto, no existe una necesidad técnica de conservar íntegramente el sis
 
 En lugar de copiar la máquina virtual completa, el servicio puede reconstruirse automáticamente sobre nuevas instancias AWS.
 
-
-![Mapagit](../images/11-Mapa-git-terra-docker.png)
+```text
+GitHub
+   +
+Docker
+   +
+Terraform
+   │
+   ▼
+Amazon ECR + Infraestructura AWS reproducible
+```
+![Mapa](../images/11-Mapa-git-terra-docker.png)
 
 Esto permite evolucionar desde servidores configurados manualmente hacia infraestructura reproducible y reemplazable.
 
@@ -174,6 +186,7 @@ La modernización definida para el proyecto contempla el siguiente mapeo:
 |---|---|---|
 | `DM-WEB-01` / Nginx | Application Load Balancer | Replatform |
 | `DM-API-01` / Next.js + Docker | EC2 + Launch Template + Auto Scaling Group | Replatform |
+| Imagen Docker de la aplicación | Amazon ECR | Replatform / Container Registry |
 | `DM-DB-01` / PostgreSQL | Amazon RDS for PostgreSQL | Replatform |
 | Datos PostgreSQL | AWS Database Migration Service | Full Load + CDC |
 | `DM-MON-01` / Prometheus + Grafana | Amazon CloudWatch | Modernización |
@@ -181,7 +194,7 @@ La modernización definida para el proyecto contempla el siguiente mapeo:
 | Escalamiento manual | Auto Scaling | Modernización |
 | Entrada web mediante servidor Nginx | Application Load Balancer | Modernización |
 | Imágenes y objetos estáticos | Amazon S3 | Replatform |
-| Contenedores Docker | EC2 / ECR | Replatform |
+| Ejecución de contenedores | EC2 + Auto Scaling Group | Replatform |
 
 ### Arquitectura objetivo simplificada
 
@@ -203,6 +216,16 @@ La modernización definida para el proyecto contempla el siguiente mapeo:
                             ▼
                     Amazon RDS
                      PostgreSQL
+
+GitHub
+   │
+   ▼
+Docker Build
+   │
+   ▼
+Amazon ECR
+   │
+   └──────────────► EC2 APP
 ```
 
 ---
@@ -211,33 +234,53 @@ La modernización definida para el proyecto contempla el siguiente mapeo:
 
 La aplicación no será migrada copiando directamente el disco de la máquina virtual `DM-API-01`.
 
-El código fuente almacenado en GitHub permite reconstruir el servicio en AWS.
+Debido a que el código fuente, las dependencias y el `Dockerfile` se encuentran versionados, la aplicación puede ser reconstruida y distribuida como una imagen Docker.
 
-El proceso objetivo es:
+Para centralizar las imágenes de contenedores se utiliza **Amazon Elastic Container Registry (Amazon ECR)**.
+
+El flujo definido para la aplicación es:
 
 ```text
 GitHub
    │
    ▼
-Código de aplicación
+Código fuente
    │
    ▼
-Docker
+Docker Build
    │
    ▼
-Amazon EC2
+Imagen Docker
    │
    ▼
-Auto Scaling Group
+Amazon ECR
+   │
+   ▼
+EC2 / Auto Scaling Group
+   │
+   ▼
+Docker Container
+   │
+   ▼
+Aplicación Next.js :3000
 ```
 
-Las instancias EC2 son creadas mediante un **Launch Template** administrado por Terraform.
+Amazon ECR funciona como el registro privado de imágenes Docker de la plataforma.
 
-La configuración inicial se automatiza mediante `user_data`, evitando depender de instalaciones manuales posteriores.
+En lugar de depender de que cada nueva instancia compile nuevamente el código fuente, las instancias pueden obtener una imagen Docker previamente construida y almacenada en ECR.
 
-Esto permite que una instancia sea reemplazada automáticamente sin depender de configuraciones realizadas manualmente en una máquina anterior.
+Este enfoque permite:
 
-Conceptualmente:
+- Centralizar las imágenes Docker.
+- Mantener una versión consistente de la aplicación.
+- Versionar imágenes mediante tags.
+- Reducir el trabajo realizado durante el arranque de una instancia.
+- Integrar el proceso posteriormente con GitHub Actions.
+- Facilitar despliegues automatizados.
+- Permitir que nuevas instancias del Auto Scaling Group obtengan la misma imagen.
+- Mejorar la reproducibilidad del entorno.
+
+El proceso objetivo de una nueva instancia es:
 
 ```text
 Auto Scaling Group
@@ -248,11 +291,30 @@ Launch Template
         ▼
 Nueva EC2
         │
-        ├── Ubuntu
-        ├── Docker
-        ├── Configuración
-        └── Aplicación
+        ▼
+Docker
+        │
+        ▼
+Amazon ECR
+        │
+        ▼
+docker pull
+        │
+        ▼
+Imagen de la aplicación
+        │
+        ▼
+docker run
+        │
+        ▼
+Next.js :3000
 ```
+
+Las instancias EC2 son creadas mediante un **Launch Template** administrado por Terraform.
+
+La configuración inicial se automatiza mediante `user_data`, evitando depender de instalaciones manuales posteriores.
+
+Esto permite que una instancia sea reemplazada automáticamente sin depender de configuraciones realizadas manualmente en una máquina anterior.
 
 Este modelo se aproxima a un enfoque de **infraestructura inmutable**, donde los servidores son reemplazables en lugar de reparados permanentemente mediante cambios manuales.
 
@@ -262,7 +324,7 @@ Este modelo se aproxima a un enfoque de **infraestructura inmutable**, donde los
 
 La base de datos requiere una estrategia diferente debido a que contiene información persistente y cambiante.
 
-Mientras que el código de la aplicación puede reconstruirse desde GitHub, los datos almacenados en PostgreSQL deben ser transferidos preservando su integridad.
+Mientras que el código de la aplicación puede reconstruirse desde GitHub y la imagen Docker almacenarse en Amazon ECR, los datos almacenados en PostgreSQL deben ser transferidos preservando su integridad.
 
 La arquitectura objetivo utiliza:
 
@@ -347,6 +409,7 @@ VMware                             AWS
    │                                │
    ├── Aplicación activa            ├── ALB
    │                                ├── EC2 + ASG
+   │                                ├── ECR
    │                                └── RDS
    │
    └── PostgreSQL
@@ -371,6 +434,7 @@ Antes de cambiar el tráfico hacia AWS deben realizarse diferentes pruebas.
 Entre ellas:
 
 - Validación funcional de la aplicación.
+- Validación de la imagen Docker almacenada en Amazon ECR.
 - Health Checks del Application Load Balancer.
 - Validación del Auto Scaling Group.
 - Pruebas de conectividad entre aplicación y base de datos.
@@ -396,6 +460,9 @@ Gran parte del trabajo debe ejecutarse antes del cutover:
 Construcción AWS
       │
       ▼
+Preparación aplicación / ECR
+      │
+      ▼
 Migración inicial de datos
       │
       ▼
@@ -411,7 +478,7 @@ Validación
 CUTOVER
 ```
 
-De esta forma, el trabajo pesado de infraestructura y transferencia de datos no ocurre dentro de la ventana de interrupción.
+De esta forma, el trabajo pesado de infraestructura, preparación de la aplicación y transferencia de datos no ocurre dentro de la ventana de interrupción.
 
 ---
 
@@ -578,48 +645,77 @@ La implementación detallada de Terraform se documenta en la siguiente fase del 
 La estrategia general queda representada de la siguiente manera:
 
 ```text
-                         USUARIOS
-                            │
-                            ▼
-                     Route 53 / DNS
-                            │
-                            ▼
-                 Application Load Balancer
-                            │
-                            ▼
-                    Auto Scaling Group
-                       /         \
-                      /           \
-                  EC2               EC2
-              us-east-1a        us-east-1b
-                      \           /
-                       \         /
-                           │
-                           ▼
-                    Amazon RDS
-                     PostgreSQL
-                           ▲
-                           │
-                         DMS
-                           ▲
-                           │
-                PostgreSQL VMware
+                              USUARIOS
+                                 │
+                                 ▼
+                          Route 53 / DNS
+                                 │
+                                 ▼
+                      Application Load Balancer
+                                 │
+                                 ▼
+                         Auto Scaling Group
+                            /         \
+                           /           \
+                       EC2               EC2
+                   us-east-1a        us-east-1b
+                           ▲           ▲
+                           │           │
+                           └─────┬─────┘
+                                 │
+                              Amazon ECR
+                                 ▲
+                                 │
+                            Docker Image
+                                 ▲
+                                 │
+                               GitHub
 
-
-GitHub
-   │
-   ▼
-CI/CD
-   │
-   ▼
-Aplicación AWS
+                                 │
+                          Aplicación EC2
+                                 │
+                                 ▼
+                          Amazon RDS
+                           PostgreSQL
+                                 ▲
+                                 │
+                               DMS
+                                 ▲
+                                 │
+                       PostgreSQL VMware
 
 
 Terraform
    │
-   ▼
-Infraestructura AWS
+   └────────────► Infraestructura AWS
 ```
+
+La arquitectura separa dos responsabilidades:
+
+```text
+APLICACIÓN
+
+GitHub
+   ↓
+Docker Build
+   ↓
+Amazon ECR
+   ↓
+EC2 / Auto Scaling
+
+
+INFRAESTRUCTURA
+
+Terraform
+   ↓
+AWS Provider
+   ↓
+VPC + Networking + Security
+   ↓
+ALB + ASG + EC2 + RDS
+```
+
+Esta separación permite administrar de forma independiente el ciclo de vida del código de aplicación y el ciclo de vida de la infraestructura.
 
 ---
 
@@ -633,6 +729,8 @@ La estrategia definida contempla:
 
 - Evaluación de AWS MGN como alternativa de Rehost.
 - Reconstrucción automatizada de la aplicación.
+- Contenerización mediante Docker.
+- Almacenamiento centralizado de imágenes Docker mediante Amazon ECR.
 - Infraestructura AWS administrada mediante Terraform.
 - Arquitectura Multi-AZ.
 - Balanceo de carga.
@@ -654,7 +752,7 @@ La siguiente fase del proyecto corresponde a la **implementación de la infraest
 
 ## Evidencia 1 — Estrategia general VMware → AWS
 
-Crear un diagrama que muestre la transformación de los principales componentes:
+Crear un diagrama que muestre:
 
 ```text
 DM-WEB-01
@@ -665,6 +763,7 @@ Nginx
 DM-API-01
 Docker + Next.js
    │
+   ├────────────► Amazon ECR
    └────────────► EC2 + Auto Scaling
 
 DM-DB-01
@@ -688,7 +787,7 @@ Nombre sugerido:
 images/01-migration-strategy-overview.png
 ```
 
-Insertar en el documento con:
+Insertar mediante:
 
 ```markdown
 ![Estrategia general de migración VMware hacia AWS](images/01-migration-strategy-overview.png)
@@ -696,9 +795,41 @@ Insertar en el documento con:
 
 ---
 
-## Evidencia 2 — Estrategia de migración de base de datos
+## Evidencia 2 — Pipeline de aplicación con Amazon ECR
 
-Crear un diagrama mostrando:
+Crear un diagrama específico mostrando:
+
+```text
+GitHub
+   ↓
+Docker Build
+   ↓
+Docker Image
+   ↓
+Amazon ECR
+   ↓
+EC2 / Auto Scaling Group
+   ↓
+Docker Container
+   ↓
+Next.js
+```
+
+Nombre sugerido:
+
+```text
+images/02-ecr-container-strategy.png
+```
+
+Markdown:
+
+```markdown
+![Estrategia de distribución de contenedores mediante Amazon ECR](images/02-ecr-container-strategy.png)
+```
+
+---
+
+## Evidencia 3 — Estrategia de migración de base de datos
 
 ```text
 PostgreSQL VMware
@@ -706,7 +837,6 @@ PostgreSQL VMware
        ├── Full Load
        │
        └── CDC
-       │
        ▼
      AWS DMS
        │
@@ -717,64 +847,38 @@ Amazon RDS PostgreSQL
 Nombre sugerido:
 
 ```text
-images/02-database-migration-strategy.png
+images/03-database-migration-strategy.png
 ```
 
 Markdown:
 
 ```markdown
-![Estrategia de migración PostgreSQL mediante AWS DMS](images/02-database-migration-strategy.png)
+![Estrategia de migración PostgreSQL mediante AWS DMS](images/03-database-migration-strategy.png)
 ```
 
 ---
 
-## Evidencia 3 — Coexistencia VMware y AWS
+## Evidencia 4 — Coexistencia VMware y AWS
 
-Diagrama mostrando ambos ambientes activos simultáneamente:
-
-```text
-USUARIOS
-   │
-   ▼
-VMware actual
-   │
-   ▼
-PostgreSQL
-   │
-   │ Full Load + CDC
-   ▼
-AWS DMS
-   │
-   ▼
-Amazon RDS
-
-AWS
-│
-├── ALB
-├── Auto Scaling
-├── EC2
-└── RDS
-
-Infraestructura preparada antes del cutover
-```
+Crear un diagrama mostrando ambos ambientes activos simultáneamente antes del cutover.
 
 Nombre sugerido:
 
 ```text
-images/03-parallel-environments.png
+images/04-parallel-environments.png
 ```
 
 Markdown:
 
 ```markdown
-![Coexistencia temporal entre VMware y AWS](images/03-parallel-environments.png)
+![Coexistencia temporal entre VMware y AWS](images/04-parallel-environments.png)
 ```
 
 ---
 
-## Evidencia 4 — Cutover y rollback
+## Evidencia 5 — Cutover y rollback
 
-Crear un diagrama del proceso:
+Crear un diagrama representando:
 
 ```text
 VMware producción
@@ -802,42 +906,30 @@ Cutover
 Nombre sugerido:
 
 ```text
-images/04-cutover-rollback.png
+images/05-cutover-rollback.png
 ```
 
 Markdown:
 
 ```markdown
-![Flujo de cutover y rollback](images/04-cutover-rollback.png)
+![Flujo de cutover y rollback](images/05-cutover-rollback.png)
 ```
 
 ---
 
-## Evidencia 5 — Arquitectura objetivo AWS
+## Evidencia 6 — Arquitectura objetivo AWS
 
-Crear un diagrama de la arquitectura final esperada:
-
-```text
-Internet
-   │
-   ▼
-Application Load Balancer
-   │
-   ▼
-Auto Scaling Group
-   ├── EC2 AZ-A
-   └── EC2 AZ-B
-          │
-          ▼
-    Amazon RDS
-```
-
-Incluyendo además:
+El diagrama final debe incluir:
 
 - VPC.
 - Subnets públicas.
 - Subnets privadas.
-- Multi-AZ.
+- Dos Availability Zones.
+- Application Load Balancer.
+- Auto Scaling Group.
+- EC2.
+- Amazon ECR.
+- Amazon RDS.
 - NAT Gateway.
 - Security Groups.
 - Terraform.
@@ -845,11 +937,11 @@ Incluyendo además:
 Nombre sugerido:
 
 ```text
-images/05-target-aws-architecture.png
+images/06-target-aws-architecture.png
 ```
 
 Markdown:
 
 ```markdown
-![Arquitectura objetivo en AWS](images/05-target-aws-architecture.png)
+![Arquitectura objetivo de modernización en AWS](images/06-target-aws-architecture.png)
 ```
