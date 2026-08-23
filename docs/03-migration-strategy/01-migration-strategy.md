@@ -162,16 +162,7 @@ Por lo tanto, no existe una necesidad técnica de conservar íntegramente el sis
 
 En lugar de copiar la máquina virtual completa, el servicio puede reconstruirse automáticamente sobre nuevas instancias AWS.
 
-```text
-GitHub
-   +
-Docker
-   +
-Terraform
-   │
-   ▼
-Amazon ECR + Infraestructura AWS reproducible
-```
+
 ![Mapa](../images/11-Mapa-git-terra-docker.png)
 
 Esto permite evolucionar desde servidores configurados manualmente hacia infraestructura reproducible y reemplazable.
@@ -198,35 +189,7 @@ La modernización definida para el proyecto contempla el siguiente mapeo:
 
 ### Arquitectura objetivo simplificada
 
-```text
-                         INTERNET
-                            │
-                            ▼
-                 Application Load Balancer
-                            │
-                            ▼
-                    Auto Scaling Group
-                     /              \
-                    /                \
-             EC2 APP                  EC2 APP
-            us-east-1a               us-east-1b
-                    \                /
-                     \              /
-                            │
-                            ▼
-                    Amazon RDS
-                     PostgreSQL
-
-GitHub
-   │
-   ▼
-Docker Build
-   │
-   ▼
-Amazon ECR
-   │
-   └──────────────► EC2 APP
-```
+![Mapa2](../images/12-mapa-arqui.png)
 
 ---
 
