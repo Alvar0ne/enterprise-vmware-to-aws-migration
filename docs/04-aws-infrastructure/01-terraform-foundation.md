@@ -180,18 +180,9 @@ El código fue separado en diferentes archivos según la responsabilidad de cada
 
 La estructura evoluciona junto con el proyecto y mantiene una separación lógica entre networking, seguridad, cómputo, balanceo y servicios adicionales.
 
-```text
-terraform/
-│
-├── provider.tf
-├── variables.tf
-├── networking.tf
-├── security.tf
-├── compute.tf
-├── load_balancer.tf
-├── outputs.tf
-└── ...
-```
+<p align="center">
+  <img src="../images/19-terracarpet.png" alt="terra" width="400">
+</p>
 
 Esta separación no representa módulos independientes, sino una organización lógica del mismo root module de Terraform.
 
@@ -389,6 +380,10 @@ Terraform compara
 ```
 
 El archivo de estado puede contener información sensible y específica del entorno.
+
+<p align="center">
+  <img src="../images/20-statelist.png" alt="terra" width="400">
+</p>
 
 Por esta razón:
 
@@ -687,149 +682,11 @@ La siguiente fase documenta la implementación del **networking AWS**, incluyend
 
 # Evidencias
 
-## Evidencia 1 — Estructura del código Terraform
 
-Agregar una captura desde Visual Studio Code mostrando la carpeta:
 
-```text
-terraform/
-├── provider.tf
-├── variables.tf
-├── networking.tf
-├── security.tf
-├── compute.tf
-├── load_balancer.tf
-├── outputs.tf
-└── ...
-```
 
-Esta captura demuestra la organización real del código IaC utilizado en el proyecto.
 
-Nombre sugerido:
 
-```text
-images/01-terraform-project-structure.png
-```
-
-Markdown:
-
-```markdown
-![Estructura del proyecto Terraform](images/01-terraform-project-structure.png)
-```
-
----
-
-## Evidencia 2 — Inicialización de Terraform
-
-Agregar una captura de terminal mostrando:
-
-```bash
-terraform init
-```
-
-y el resultado exitoso:
-
-```text
-Terraform has been successfully initialized!
-```
-
-Nombre sugerido:
-
-```text
-images/02-terraform-init.png
-```
-
-Markdown:
-
-```markdown
-![Inicialización de Terraform](images/02-terraform-init.png)
-```
-
----
-
-## Evidencia 3 — Validación del código
-
-Ejecutar:
-
-```bash
-terraform validate
-```
-
-y capturar:
-
-```text
-Success! The configuration is valid.
-```
-
-Nombre sugerido:
-
-```text
-images/03-terraform-validate.png
-```
-
-Markdown:
-
-```markdown
-![Validación de configuración Terraform](images/03-terraform-validate.png)
-```
-
----
-
-## Evidencia 4 — Terraform Plan
-
-Ejecutar:
-
-```bash
-terraform plan
-```
-
-Agregar una captura donde se observe el resumen de cambios:
-
-```text
-Plan: X to add, X to change, X to destroy.
-```
-
-No es necesario capturar todo el plan.
-
-La parte más importante es demostrar que Terraform detecta y presenta los cambios antes de modificar AWS.
-
-Nombre sugerido:
-
-```text
-images/04-terraform-plan.png
-```
-
-Markdown:
-
-```markdown
-![Plan de infraestructura generado por Terraform](images/04-terraform-plan.png)
-```
-
----
-
-## Evidencia 5 — Terraform Apply
-
-Agregar una captura de una ejecución exitosa mostrando:
-
-```text
-Apply complete!
-```
-
-y el resumen de recursos creados o modificados.
-
-Nombre sugerido:
-
-```text
-images/05-terraform-apply.png
-```
-
-Markdown:
-
-```markdown
-![Aplicación de infraestructura mediante Terraform](images/05-terraform-apply.png)
-```
-
----
 
 ## Evidencia 6 — Terraform State
 
