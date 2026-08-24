@@ -476,7 +476,7 @@ El uso de Terraform permite:
 El ciclo utilizado en el proyecto es:
 
 <p align="center">
-  <img src="../images/18-terraform2.png" alt="Mapa6" width="600">
+  <img src="../images/18-terraform2.png" alt="Mapa6" width="400">
 </p>
 
 La implementación detallada de Terraform se documenta en la siguiente fase del proyecto.
