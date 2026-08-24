@@ -399,14 +399,11 @@ Para evitar publicar archivos que no deben almacenarse en Git se utiliza `.gitig
 
 Entre los elementos que deben excluirse se encuentran archivos de estado y otros artefactos locales de Terraform.
 
-Ejemplo:
 
-```gitignore
-*.tfstate
-*.tfstate.*
-.terraform/
-*.tfplan
-```
+
+<p align="center">
+  <img src="../images/21-gitignore.png" alt="terra" width="500">
+</p>
 
 También deben mantenerse fuera del repositorio archivos que contengan credenciales, secretos o valores sensibles.
 
