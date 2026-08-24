@@ -315,24 +315,10 @@ En un escenario empresarial, la infraestructura AWS no debe comenzar a construir
 
 Ambos entornos deben coexistir temporalmente.
 
-```text
-ENTORNO ACTUAL                     NUEVO ENTORNO
+<p align="center">
+  <img src="../images/16-mapa6.png" alt="Mapa6" width="500">
+</p>
 
-VMware                             AWS
-   │                                │
-   ├── Aplicación activa            ├── ALB
-   │                                ├── EC2 + ASG
-   │                                ├── ECR
-   │                                └── RDS
-   │
-   └── PostgreSQL
-          │
-          │ Full Load + CDC
-          ▼
-         DMS
-          │
-          └────────────────────────► RDS
-```
 
 Durante este período, VMware continúa atendiendo usuarios mientras AWS es preparado y validado.
 
@@ -412,40 +398,7 @@ Un procedimiento empresarial podría considerar:
 9. Validar logs y métricas.
 10. Confirmar operación normal.
 
-### Flujo conceptual
 
-```text
-ANTES
-
-Usuarios
-   │
-   ▼
-VMware
-   │
-   ▼
-PostgreSQL
-
-
-        CUTOVER
-           │
-           ▼
-
-
-DESPUÉS
-
-Usuarios
-   │
-   ▼
-AWS ALB
-   │
-   ▼
-Auto Scaling Group
-   │
-   ▼
-Amazon RDS
-```
-
----
 
 ## 16. Estrategia de rollback
 
@@ -482,23 +435,12 @@ La infraestructura VMware solamente debe retirarse una vez validada completament
 
 La nueva infraestructura AWS será administrada mediante **Terraform**.
 
-En lugar de crear cada recurso manualmente desde AWS Management Console, la arquitectura será declarada como código.
 
-```text
-Código Terraform
-       │
-       ▼
-Terraform
-       │
-       ▼
-AWS Provider
-       │
-       ▼
-AWS API
-       │
-       ▼
-Infraestructura AWS
-```
+<p align="center">
+  <img src="../images/17-terraform.png" alt="Mapa6" width="500">
+</p>
+
+En lugar de crear cada recurso manualmente desde AWS Management Console, la arquitectura será declarada como código.
 
 Terraform permite administrar recursos como:
 
@@ -533,75 +475,15 @@ El uso de Terraform permite:
 
 El ciclo utilizado en el proyecto es:
 
-```text
-terraform init
-      │
-      ▼
-terraform fmt
-      │
-      ▼
-terraform validate
-      │
-      ▼
-terraform plan
-      │
-      ▼
-terraform apply
-```
+<p align="center">
+  <img src="../images/18-terraform2.png" alt="Mapa6" width="600">
+</p>
 
 La implementación detallada de Terraform se documenta en la siguiente fase del proyecto.
 
 ---
 
 ## 19. Arquitectura objetivo de migración
-
-La estrategia general queda representada de la siguiente manera:
-
-```text
-                              USUARIOS
-                                 │
-                                 ▼
-                          Route 53 / DNS
-                                 │
-                                 ▼
-                      Application Load Balancer
-                                 │
-                                 ▼
-                         Auto Scaling Group
-                            /         \
-                           /           \
-                       EC2               EC2
-                   us-east-1a        us-east-1b
-                           ▲           ▲
-                           │           │
-                           └─────┬─────┘
-                                 │
-                              Amazon ECR
-                                 ▲
-                                 │
-                            Docker Image
-                                 ▲
-                                 │
-                               GitHub
-
-                                 │
-                          Aplicación EC2
-                                 │
-                                 ▼
-                          Amazon RDS
-                           PostgreSQL
-                                 ▲
-                                 │
-                               DMS
-                                 ▲
-                                 │
-                       PostgreSQL VMware
-
-
-Terraform
-   │
-   └────────────► Infraestructura AWS
-```
 
 La arquitectura separa dos responsabilidades:
 
@@ -661,200 +543,4 @@ La siguiente fase del proyecto corresponde a la **implementación de la infraest
 
 ---
 
-# Evidencias y diagramas recomendados
-
-## Evidencia 1 — Estrategia general VMware → AWS
-
-Crear un diagrama que muestre:
-
-```text
-DM-WEB-01
-Nginx
-   │
-   └────────────► Application Load Balancer
-
-DM-API-01
-Docker + Next.js
-   │
-   ├────────────► Amazon ECR
-   └────────────► EC2 + Auto Scaling
-
-DM-DB-01
-PostgreSQL
-   │
-   └────────────► Amazon RDS PostgreSQL
-
-DM-MON-01
-Prometheus + Grafana
-   │
-   └────────────► CloudWatch
-
-Infraestructura manual
-   │
-   └────────────► Terraform
-```
-
-Nombre sugerido:
-
-```text
-images/01-migration-strategy-overview.png
-```
-
-Insertar mediante:
-
-```markdown
-![Estrategia general de migración VMware hacia AWS](images/01-migration-strategy-overview.png)
-```
-
----
-
-## Evidencia 2 — Pipeline de aplicación con Amazon ECR
-
-Crear un diagrama específico mostrando:
-
-```text
-GitHub
-   ↓
-Docker Build
-   ↓
-Docker Image
-   ↓
-Amazon ECR
-   ↓
-EC2 / Auto Scaling Group
-   ↓
-Docker Container
-   ↓
-Next.js
-```
-
-Nombre sugerido:
-
-```text
-images/02-ecr-container-strategy.png
-```
-
-Markdown:
-
-```markdown
-![Estrategia de distribución de contenedores mediante Amazon ECR](images/02-ecr-container-strategy.png)
-```
-
----
-
-## Evidencia 3 — Estrategia de migración de base de datos
-
-```text
-PostgreSQL VMware
-       │
-       ├── Full Load
-       │
-       └── CDC
-       ▼
-     AWS DMS
-       │
-       ▼
-Amazon RDS PostgreSQL
-```
-
-Nombre sugerido:
-
-```text
-images/03-database-migration-strategy.png
-```
-
-Markdown:
-
-```markdown
-![Estrategia de migración PostgreSQL mediante AWS DMS](images/03-database-migration-strategy.png)
-```
-
----
-
-## Evidencia 4 — Coexistencia VMware y AWS
-
-Crear un diagrama mostrando ambos ambientes activos simultáneamente antes del cutover.
-
-Nombre sugerido:
-
-```text
-images/04-parallel-environments.png
-```
-
-Markdown:
-
-```markdown
-![Coexistencia temporal entre VMware y AWS](images/04-parallel-environments.png)
-```
-
----
-
-## Evidencia 5 — Cutover y rollback
-
-Crear un diagrama representando:
-
-```text
-VMware producción
-       │
-       ▼
-Replicación completada
-       │
-       ▼
-Validación AWS
-       │
-       ▼
-Cutover
-       │
-       ├────────► AWS operativo
-       │
-       └────────► Problema crítico
-                       │
-                       ▼
-                    Rollback
-                       │
-                       ▼
-                    VMware
-```
-
-Nombre sugerido:
-
-```text
-images/05-cutover-rollback.png
-```
-
-Markdown:
-
-```markdown
-![Flujo de cutover y rollback](images/05-cutover-rollback.png)
-```
-
----
-
-## Evidencia 6 — Arquitectura objetivo AWS
-
-El diagrama final debe incluir:
-
-- VPC.
-- Subnets públicas.
-- Subnets privadas.
-- Dos Availability Zones.
-- Application Load Balancer.
-- Auto Scaling Group.
-- EC2.
-- Amazon ECR.
-- Amazon RDS.
-- NAT Gateway.
-- Security Groups.
-- Terraform.
-
-Nombre sugerido:
-
-```text
-images/06-target-aws-architecture.png
-```
-
-Markdown:
-
-```markdown
-![Arquitectura objetivo de modernización en AWS](images/06-target-aws-architecture.png)
-```
+#
