@@ -101,6 +101,8 @@ El diseño Multi-AZ proporciona la base de networking necesaria para implementar
 
 Se crearon dos subnets públicas, una en cada Availability Zone.
 
+![sub](../images/22-terrapublic.png)
+
 Conceptualmente:
 
 ```text
@@ -139,6 +141,8 @@ Las instancias de aplicación no necesitan estar expuestas directamente.
 ## 5. Subnets privadas
 
 También se crearon dos subnets privadas, distribuidas entre las mismas Availability Zones.
+
+![sub](../images/22-terraprivate.png)
 
 ```text
 VPC
