@@ -288,7 +288,11 @@ NAT Gateway
 
 La Elastic IP proporciona la dirección pública utilizada por el NAT Gateway cuando los recursos privados necesitan iniciar comunicaciones hacia Internet.
 
+![sub](../images/22-elastic2.png)
+
 La EIP también fue declarada y administrada mediante Terraform.
+
+![sub](../images/22-elastic.png)
 
 ---
 
@@ -325,7 +329,11 @@ Internet
 
 El NAT Gateway se encuentra ubicado en una **subnet pública** y utiliza una Elastic IP.
 
-Esto permite que las instancias privadas puedan **iniciar conexiones hacia Internet**, sin convertirlas en servidores directamente accesibles desde Internet.
+![sub](../images/22-natconsola.png)
+
+Esto permite que las instancias privadas puedan **iniciar conexiones hacia Internet**, sin convertirlas en servidores directamente accesibles desde Internet. Tambien fue declarado por terraform.
+
+![sub](../images/22-natgateway.png)
 
 ---
 
