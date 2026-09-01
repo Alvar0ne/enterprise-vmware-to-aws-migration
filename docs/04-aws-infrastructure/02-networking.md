@@ -53,35 +53,10 @@ La VPC fue creada y administrada mediante Terraform.
 
 Terraform mantiene este recurso dentro de su State, permitiendo detectar y administrar futuros cambios.
 
-### Evidencia — VPC creada
 
-Agregar una captura desde:
+![VPC2](../images/22-consolavpc.png)
 
-```text
-AWS Console
-→ VPC
-→ Sus VPC
-```
 
-La captura debe mostrar principalmente:
-
-- Nombre de la VPC.
-- Estado `Available`.
-- CIDR `10.0.0.0/16`.
-
-No es necesario mostrar información de otras VPC existentes en la cuenta.
-
-Nombre sugerido:
-
-```text
-images/01-vpc-created.png
-```
-
-Markdown:
-
-```markdown
-![VPC principal creada mediante Terraform](images/01-vpc-created.png)
-```
 
 ---
 
@@ -226,37 +201,9 @@ Esta estructura permite posteriormente distribuir las instancias del Auto Scalin
 
 Si una instancia falla, otra instancia ubicada en una zona diferente puede continuar proporcionando el servicio.
 
-### Evidencia — Subnets Multi-AZ
 
-Agregar una captura desde:
+![sub](../images/22-subredes.png)
 
-```text
-AWS Console
-→ VPC
-→ Subnets
-```
-
-La captura debería permitir identificar:
-
-- Las cuatro subnets.
-- La VPC asociada.
-- Sus CIDR.
-- `us-east-1a`.
-- `us-east-1b`.
-
-Esta evidencia es especialmente importante porque demuestra visualmente la distribución Multi-AZ.
-
-Nombre sugerido:
-
-```text
-images/02-subnets-multi-az.png
-```
-
-Markdown:
-
-```markdown
-![Distribución de subnets públicas y privadas entre dos Availability Zones](images/02-subnets-multi-az.png)
-```
 
 ---
 
