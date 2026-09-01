@@ -17,28 +17,8 @@ La estructura implementada permite que:
 
 La arquitectura base implementada es:
 
-```text
-                        INTERNET
-                            │
-                            ▼
-                    Internet Gateway
-                            │
-                            ▼
-                  ┌───────────────────┐
-                  │    VPC 10.0.0.0/16
-                  │
-        ┌─────────┴─────────┐
-        │                   │
-   us-east-1a          us-east-1b
-        │                   │
-   Public Subnet        Public Subnet
-        │                   │
-   Private Subnet       Private Subnet
-        │                   │
-        └─────────┬─────────┘
-                  │
-             NAT Gateway
-```
+![Mapa](../images/22-a.png)
+
 
 ---
 
@@ -69,16 +49,7 @@ El uso de un bloque `/16` proporciona un espacio suficientemente amplio para div
 
 La VPC fue creada y administrada mediante Terraform.
 
-Ejemplo conceptual:
-
-```hcl
-resource "aws_vpc" "main" {
-  cidr_block = var.vpc_cidr
-
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-}
-```
+![VPC](../images/22-vpcterraform.png)
 
 Terraform mantiene este recurso dentro de su State, permitiendo detectar y administrar futuros cambios.
 

@@ -104,24 +104,33 @@ resource "aws_launch_template" "app" {
     --query SecretString \
     --output text)
 
-  RDS_USERNAME=$(echo "$RDS_SECRET" | python3 -c "import sys,json; print(json.load(sys.stdin)['username'])")
-  RDS_PASSWORD=$(echo "$RDS_SECRET" | python3 -c "import sys,json; print(json.load(sys.stdin)['password'])")
-  RDS_HOST=$(echo "$RDS_SECRET" | python3 -c "import sys,json; print(json.load(sys.stdin)['host'])")
-  RDS_PORT=$(echo "$RDS_SECRET" | python3 -c "import sys,json; print(json.load(sys.stdin)['port'])")
+  RDS_USERNAME=$(echo "$RDS_SECRET" | python3 -c "import sys,json; from urllib.parse import quote; print(quote(json.load(sys.stdin)['username'], safe=''))")
+  RDS_PASSWORD=$(echo "$RDS_SECRET" | python3 -c "import sys,json; from urllib.parse import quote; print(quote(json.load(sys.stdin)['password'], safe=''))")
+
+  RDS_HOST="${aws_db_instance.postgres.address}"
+  RDS_PORT="${aws_db_instance.postgres.port}"
 
   DATABASE_URL="postgresql://$RDS_USERNAME:$RDS_PASSWORD@$RDS_HOST:$RDS_PORT/${aws_db_instance.postgres.db_name}"
 
-
-
-    # Ejecutar Distrito Miami usando PostgreSQL RDS
+  # Ejecutar Distrito Miami usando PostgreSQL RDS y S3
   docker run -d \
-    --name distrito-miami-app \
-    --restart unless-stopped \
-    -p 3000:3000 \
-    -e DATA_STORE=postgres \
-    -e DATABASE_URL="$DATABASE_URL" \
-    ${aws_ecr_repository.app.repository_url}:latest
-    ${aws_ecr_repository.app.repository_url}:latest
+  --name distrito-miami-app \
+  --restart unless-stopped \
+  -p 3000:3000 \
+  -e DATA_STORE=postgres \
+  -e DATABASE_URL="$DATABASE_URL" \
+  -e IMAGE_STORE=s3 \
+  -e AWS_S3_BUCKET=distritomiami-images-prod \
+  -e AWS_REGION=us-east-1 \
+  -e PAYMENT_MODE=mock \
+  -e NEXT_PUBLIC_SITE_URL="http://${aws_lb.app.dns_name}" \
+  --log-driver=awslogs \
+  --log-opt awslogs-region=us-east-1 \
+  --log-opt awslogs-group=${aws_cloudwatch_log_group.app.name} \
+  --log-opt awslogs-stream="app-$(hostname)" \
+  ${aws_ecr_repository.app.repository_url}:latest
+
+    
 EOF
   )
 
