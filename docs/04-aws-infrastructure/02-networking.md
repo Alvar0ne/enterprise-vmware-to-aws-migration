@@ -229,6 +229,8 @@ VPC
 
 El Internet Gateway fue asociado a la VPC mediante Terraform.
 
+![sub](../images/22-internetgate.png)
+
 Sin embargo, la existencia de un Internet Gateway por sí sola no convierte automáticamente una subnet en pública.
 
 También es necesario que la tabla de rutas correspondiente contenga una ruta hacia el IGW.
@@ -265,38 +267,9 @@ indica que el tráfico cuyo destino no corresponde a una ruta más específica p
 
 Esto permite que los recursos diseñados para ser públicos puedan utilizar el Internet Gateway como punto de entrada y salida.
 
-### Evidencia — Route Table pública
 
-Agregar una captura desde:
+![sub](../images/22-tablapublic.png)
 
-```text
-AWS Console
-→ VPC
-→ Route Tables
-→ Public Route Table
-→ Routes
-```
-
-La evidencia debe mostrar:
-
-```text
-Destination      Target
-
-10.0.0.0/16      local
-0.0.0.0/0        igw-...
-```
-
-Nombre sugerido:
-
-```text
-images/03-public-route-table.png
-```
-
-Markdown:
-
-```markdown
-![Tabla de rutas pública con salida mediante Internet Gateway](images/03-public-route-table.png)
-```
 
 ---
 
@@ -439,38 +412,7 @@ NAT Gateway
 
 De esta manera, las instancias privadas pueden iniciar tráfico hacia Internet pero no reciben tráfico entrante iniciado directamente desde Internet mediante el NAT Gateway.
 
-### Evidencia — Route Table privada
-
-Agregar una captura desde:
-
-```text
-AWS Console
-→ VPC
-→ Route Tables
-→ Private Route Table
-→ Routes
-```
-
-La captura debe mostrar principalmente:
-
-```text
-Destination      Target
-
-10.0.0.0/16      local
-0.0.0.0/0        nat-...
-```
-
-Nombre sugerido:
-
-```text
-images/04-private-route-table.png
-```
-
-Markdown:
-
-```markdown
-![Tabla de rutas privada con salida mediante NAT Gateway](images/04-private-route-table.png)
-```
+![sub](../images/22-tablaprivate.png)
 
 ---
 
