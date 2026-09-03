@@ -155,3 +155,29 @@ resource "aws_lambda_event_source_mapping" "orders" {
 
   enabled = true
 }
+
+
+
+# ============================================================
+# LAMBDA - ANALITYCS
+# ============================================================
+
+resource "aws_lambda_function" "order_analytics" {
+  function_name = "${var.project_name}-order-analytics"
+
+  role    = aws_iam_role.order_analytics_lambda.arn
+  handler = "order_analytics.lambda_handler"
+  runtime = "python3.12"
+
+  filename         = data.archive_file.order_analytics.output_path
+  source_code_hash = data.archive_file.order_analytics.output_base64sha256
+
+  timeout     = 10
+  memory_size = 128
+
+  environment {
+    variables = {
+      DATA_LAKE_BUCKET = aws_s3_bucket.data_lake.bucket
+    }
+  }
+}

@@ -8,16 +8,30 @@ def lambda_handler(event, context):
     for record in event["Records"]:
         message = json.loads(record["body"])
 
-        print(f"Procesando evento: {message.get('event')}")
-        print(f"Order ID: {message.get('orderId')}")
-        print(f"Customer ID: {message.get('customerId')}")
-        print(f"Total: {message.get('total')}")
+        # EventBridge envuelve nuestros datos dentro de "detail"
+        detail = message.get("detail", {})
 
-        # Nos permitirá probar intencionalmente la DLQ después
-        if message.get("forceFailure") is True:
+        event_type = message.get("detail-type")
+        order_id = detail.get("orderId")
+        customer_id = detail.get("customerId")
+        customer_email = detail.get("customerEmail")
+        total = detail.get("total")
+
+        print(f"Procesando evento: {event_type}")
+        print(f"Order ID: {order_id}")
+        print(f"Customer ID: {customer_id}")
+        print(f"Customer Email: {customer_email}")
+        print(f"Total: {total}")
+
+        # Validación: no queremos procesar eventos incompletos
+        if not order_id:
+            raise ValueError("El evento no contiene detail.orderId")
+
+        # Nos permitirá seguir probando intencionalmente la DLQ después
+        if detail.get("forceFailure") is True:
             raise Exception("Fallo intencional para probar DLQ")
 
-        print(f"Pedido {message.get('orderId')} procesado correctamente")
+        print(f"Pedido {order_id} procesado correctamente")
 
     return {
         "statusCode": 200

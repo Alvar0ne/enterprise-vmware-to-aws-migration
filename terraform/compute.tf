@@ -124,6 +124,7 @@ resource "aws_launch_template" "app" {
   -e AWS_REGION=us-east-1 \
   -e PAYMENT_MODE=mock \
   -e NEXT_PUBLIC_SITE_URL="http://${aws_lb.app.dns_name}" \
+  -e EVENT_BUS_NAME="${aws_cloudwatch_event_bus.ecommerce.name}" \
   --log-driver=awslogs \
   --log-opt awslogs-region=us-east-1 \
   --log-opt awslogs-group=${aws_cloudwatch_log_group.app.name} \

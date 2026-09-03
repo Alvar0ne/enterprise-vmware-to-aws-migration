@@ -84,3 +84,14 @@ output "rds_master_secret_arn" {
   description = "ARN del secreto con las credenciales maestras de RDS"
   value       = aws_db_instance.postgres.master_user_secret[0].secret_arn
 }
+
+
+# ============================================================
+# OUTPUT - GITHUB ACTIONS IAM ROLE ARN
+# Muestra el ARN del rol que utilizará GitHub Actions mediante
+# OIDC para autenticarse en AWS.
+# ============================================================
+
+output "github_actions_role_arn" {
+  value = aws_iam_role.github_actions.arn
+}
