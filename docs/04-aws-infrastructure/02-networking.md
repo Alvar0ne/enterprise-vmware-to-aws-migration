@@ -498,7 +498,10 @@ Esta separación permite exponer únicamente los componentes que realmente neces
 
 El tráfico de usuarios seguirá el siguiente recorrido:
 
-![sub](../images/22-flujoentrada.png)
+
+<p align="center">
+  <img src="../images/22-flujoentrada.png" alt="terra" width="400">
+</p>
 
 El usuario no establece una conexión directa con las instancias EC2.
 
@@ -510,7 +513,9 @@ El punto de entrada público es el Application Load Balancer.
 
 Cuando una instancia privada necesita iniciar una conexión hacia Internet, el recorrido es diferente.
 
-![sub](../images/22-flujosalida.png)
+<p align="center">
+  <img src="../images/22-flujosalida.png" alt="terra" width="400">
+</p>
 
 El NAT Gateway permite la salida sin requerir que las instancias tengan una dirección IPv4 pública.
 
@@ -559,7 +564,7 @@ para controlar la comunicación entre las diferentes capas.
 La arquitectura base puede representarse de la siguiente manera:
 
 ![sub](../images/22-mapafinal.png)
-```
+
 
 Esta arquitectura proporciona la base para desplegar posteriormente las capas de cómputo, balanceo y base de datos.
 
