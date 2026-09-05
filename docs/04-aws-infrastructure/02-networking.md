@@ -445,6 +445,8 @@ Private B ─────┘
 
 Estas asociaciones también son declaradas mediante Terraform.
 
+![sub](../images/22-asosubnet.png)
+
 Esto evita tener que configurar manualmente cada subnet desde AWS Management Console.
 
 ---
@@ -496,21 +498,7 @@ Esta separación permite exponer únicamente los componentes que realmente neces
 
 El tráfico de usuarios seguirá el siguiente recorrido:
 
-```text
-Usuario
-   │
-   ▼
-Internet
-   │
-   ▼
-Internet Gateway
-   │
-   ▼
-Application Load Balancer
-   │
-   ▼
-EC2 privadas
-```
+![sub](../images/22-flujoentrada.png)
 
 El usuario no establece una conexión directa con las instancias EC2.
 
@@ -522,21 +510,7 @@ El punto de entrada público es el Application Load Balancer.
 
 Cuando una instancia privada necesita iniciar una conexión hacia Internet, el recorrido es diferente.
 
-```text
-EC2 privada
-    │
-    ▼
-Private Route Table
-    │
-    ▼
-NAT Gateway
-    │
-    ▼
-Internet Gateway
-    │
-    ▼
-Internet
-```
+![sub](../images/22-flujosalida.png)
 
 El NAT Gateway permite la salida sin requerir que las instancias tengan una dirección IPv4 pública.
 
@@ -584,79 +558,12 @@ para controlar la comunicación entre las diferentes capas.
 
 La arquitectura base puede representarse de la siguiente manera:
 
-```text
-                              INTERNET
-                                  │
-                                  ▼
-                         Internet Gateway
-                                  │
-                                  ▼
-                       VPC 10.0.0.0/16
-                                  │
-             ┌────────────────────┴────────────────────┐
-             │                                         │
-        us-east-1a                                us-east-1b
-             │                                         │
-      ┌──────┴──────┐                           ┌──────┴──────┐
-      │             │                           │             │
-   Public A      Private A                   Public B      Private B
-      │             │                           │             │
-      │             │                           │             │
-      └──── ALB ────┼───────────────────────────┘             │
-                    │                                         │
-                  EC2                                       EC2
-                    │                                         │
-                    └────────────────┬────────────────────────┘
-                                     │
-                                     ▼
-                                    RDS
-
-
-Private Subnets
-       │
-       ▼
-Private Route Table
-       │
-       ▼
-NAT Gateway
-       │
-       ▼
-Internet Gateway
-       │
-       ▼
-Internet
+![sub](../images/22-mapafinal.png)
 ```
 
 Esta arquitectura proporciona la base para desplegar posteriormente las capas de cómputo, balanceo y base de datos.
 
-### Evidencia — Arquitectura de networking
 
-Agregar un diagrama visual utilizando iconos oficiales o representativos de AWS mostrando:
-
-- VPC.
-- `us-east-1a`.
-- `us-east-1b`.
-- Dos subnets públicas.
-- Dos subnets privadas.
-- Internet Gateway.
-- NAT Gateway.
-- Application Load Balancer.
-- EC2 privadas.
-- RDS privado.
-
-Nombre sugerido:
-
-```text
-images/05-aws-network-architecture.png
-```
-
-Markdown:
-
-```markdown
-![Arquitectura de networking AWS Multi-AZ](images/05-aws-network-architecture.png)
-```
-
-> Esta debería ser la imagen principal de esta sección. Es más útil para un reclutador o arquitecto que varias capturas independientes de AWS Console.
 
 ---
 
@@ -704,45 +611,6 @@ Networking creado en AWS
 
 Esto permite que la topología de red pueda reconstruirse a partir del código en lugar de depender exclusivamente de configuraciones realizadas manualmente.
 
-### Evidencia — Recursos de networking administrados por Terraform
-
-Se puede utilizar:
-
-```bash
-terraform state list
-```
-
-y capturar específicamente los recursos relacionados con networking.
-
-Por ejemplo:
-
-```text
-aws_vpc.main
-aws_subnet.public_a
-aws_subnet.public_b
-aws_subnet.private_a
-aws_subnet.private_b
-aws_internet_gateway.main
-aws_eip.nat
-aws_nat_gateway.main
-aws_route_table.public
-aws_route_table.private
-...
-```
-
-Nombre sugerido:
-
-```text
-images/06-terraform-networking-state.png
-```
-
-Markdown:
-
-```markdown
-![Recursos de networking administrados mediante Terraform](images/06-terraform-networking-state.png)
-```
-
-Esta evidencia es opcional si `terraform state list` ya fue mostrado en `01-terraform-foundation.md`.
 
 ---
 
