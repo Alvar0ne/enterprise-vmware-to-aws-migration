@@ -99,6 +99,8 @@ AWS Security Groups
 
 Esto permite que las reglas de seguridad formen parte de la infraestructura versionada del proyecto.
 
+![sub](../images/23-gruposeguridad.png)
+
 ---
 
 ## 4. Security Group del Application Load Balancer
@@ -136,39 +138,7 @@ El ALB es el componente diseñado para recibir tráfico público.
 
 Las instancias EC2 de aplicación permanecen detrás de este componente.
 
-### Evidencia — Security Group del ALB
-
-Agregar una captura desde:
-
-```text
-AWS Console
-→ EC2
-→ Security Groups
-→ ALB Security Group
-→ Inbound rules
-```
-
-La captura debe permitir visualizar principalmente:
-
-```text
-HTTP
-TCP
-80
-0.0.0.0/0
-```
-
-Nombre sugerido:
-
-```text
-images/01-alb-security-group.png
-```
-
-Markdown:
-
-```markdown
-![Reglas de entrada del Security Group del Application Load Balancer](images/01-alb-security-group.png)
-```
-
+![sub](../images/23-securityalb.png)
 ---
 
 ## 5. Security Group de la aplicación
